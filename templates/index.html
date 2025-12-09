@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEPO | By Elysand</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+        :root {
+            --primary: #1DB954;
+            --primary-hover: #1ed760;
+            --dark: #000000;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--dark);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background */
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; animation: float 10s infinite ease-in-out; }
+        .orb-1 { width: 400px; height: 400px; background: #1DB954; top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #1e3a8a; bottom: -50px; right: -50px; animation-delay: -5s; }
+        @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, 50px); } }
+
+        /* Main Card */
+        .container {
+            width: 500px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Settings Button */
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #888;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .settings-icon:hover { color: white; transform: rotate(90deg); }
+        
+        .warn-dot {
+            position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%; display: none;
+        }
+
+        h1 { margin: 0; font-size: 3rem; background: linear-gradient(to right, #fff, #bbb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .credits { margin-top: 30px; font-size: 0.8rem; color: #555; }
+        .credits span { color: var(--primary); font-weight: bold; }
+
+        /* Inputs & Buttons */
+        .input-box { position: relative; margin: 20px 0; }
+        input[type="text"] {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            padding: 15px; border-radius: 12px; color: white; outline: none; box-sizing: border-box;
+        }
+        .dl-btn {
+            width: 100%; background: var(--primary); color: black; border: none; padding: 15px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;
+        }
+        .dl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .dl-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(29,185,84,0.3); }
+
+        /* Preview */
+        #preview-area { display: none; margin: 20px 0; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; align-items: center; gap: 15px; text-align: left;}
+        #preview-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
+
+        /* MODAL (Settings) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 100; display: none; justify-content: center; align-items: center;
+        }
+        .modal {
+            background: #181818; width: 450px; padding: 30px; border-radius: 20px;
+            border: 1px solid var(--border); box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            text-align: left;
+        }
+        .modal h2 { margin-top: 0; color: var(--primary); }
+        .modal label { display: block; font-size: 0.9rem; color: #aaa; margin-top: 15px; margin-bottom: 5px; }
+        .modal input { width: 100%; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box;}
+        
+        .tutorial {
+            background: #222; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 0.85rem; color: #ccc; line-height: 1.4;
+        }
+        .save-btn {
+            margin-top: 20px; background: white; color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; float: right;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="container">
+        <!-- Settings Icon -->
+        <div class="settings-icon" onclick="openSettings()">
+            <i class="fas fa-cog"></i>
+            <div class="warn-dot" id="warnDot"></div>
+        </div>
+
+        <h1>XEPO</h1>
+        <p style="color: #888; font-size: 0.9rem; letter-spacing: 2px;">EDUCATIONAL TOOL</p>
+
+        <div class="input-box">
+            <input type="text" id="linkInput" placeholder="Paste Spotify URL..." oninput="checkLink()">
+        </div>
+
+        <div id="preview-area">
+            <img id="preview-img" src="">
+            <div>
+                <h4 id="preview-title" style="margin:0;">Title</h4>
+                <p id="preview-artist" style="margin:5px 0 0; color:#aaa; font-size:0.8rem;">Artist</p>
+            </div>
+        </div>
+
+        <form id="dlForm" action="/download" method="post" onsubmit="startDownload()">
+            <input type="hidden" name="link" id="hiddenLink">
+            <!-- Hidden Fields for API Keys (injected via JS) -->
+            <input type="hidden" name="cid" id="hiddenCID">
+            <input type="hidden" name="cs" id="hiddenCS">
+            
+            <button type="submit" class="dl-btn" id="dlBtn" disabled>
+                Download
+            </button>
+        </form>
+
+        <div id="statusMsg" style="margin-top:15px; color:#666; font-size:0.8rem;">Waiting for input...</div>
+
+        <div class="credits">
+            Made with ❤️ for Educational Purpose.<br>
+            Credits to <span>Elysand</span>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <h2>API Setup</h2>
+            <p style="color:#888; font-size:0.9rem;">Your keys are saved in your browser cookies/storage. We never see them.</p>
+            
+            <label>Client ID</label>
+            <input type="text" id="inputCID" placeholder="Enter Client ID">
+            
+            <label>Client Secret</label>
+            <input type="text" id="inputCS" placeholder="Enter Client Secret" type="password">
+
+            <div class="tutorial">
+                <strong>How to get keys:</strong>
+                <ol style="padding-left: 20px; margin: 5px 0;">
+                    <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank" style="color:var(--primary);">Spotify Developer</a>.</li>
+                    <li>Log in and click "Create App".</li>
+                    <li>Name it "...", Website: <code>https://youtoube.com</code>.</li>
+                    <li>Go to "Settings" inside the app to copy ID & Secret.</li>
+                </ol>
+            </div>
+
+            <button class="save-btn" onclick="saveKeys()">Save & Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Check Keys on Load
+        document.addEventListener("DOMContentLoaded", () => {
+            const cid = localStorage.getItem("xepo_cid");
+            const cs = localStorage.getItem("xepo_cs");
+            
+            if(!cid || !cs) {
+                document.getElementById('warnDot').style.display = 'block';
+                openSettings(); // Force open if no keys
+            } else {
+                document.getElementById('inputCID').value = cid;
+                document.getElementById('inputCS').value = cs;
+            }
+        });
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function saveKeys() {
+            const cid = document.getElementById('inputCID').value.trim();
+            const cs = document.getElementById('inputCS').value.trim();
+
+            if(cid && cs) {
+                localStorage.setItem("xepo_cid", cid);
+                localStorage.setItem("xepo_cs", cs);
+                document.getElementById('warnDot').style.display = 'none';
+                document.getElementById('settingsModal').style.display = 'none';
+                alert("Keys saved safely in your browser!");
+            } else {
+                alert("Please fill in both fields.");
+            }
+        }
+
+        let timeout = null;
+        function checkLink() {
+            const link = document.getElementById('linkInput').value;
+            if (link.includes('spotify.com')) {
+                document.getElementById('statusMsg').innerText = "Verifying Keys & Metadata...";
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fetchMetadata(link), 500);
+            }
+        }
+
+        async function fetchMetadata(link) {
+            const cid = localStorage.getItem("xepo_cid");
+            const cs = localStorage.getItem("xepo_cs");
+
+            if(!cid || !cs) {
+                openSettings();
+                return;
+            }
+
+            try {
+                const response = await fetch('/get_info', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ link: link, cid: cid, cs: cs })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('statusMsg').innerText = "Error: " + data.error;
+                    if(data.error.includes("Keys")) openSettings();
+                } else {
+                    // Show Preview
+                    const preview = document.getElementById('preview-area');
+                    preview.style.display = 'flex';
+                    document.getElementById('preview-img').src = data.image;
+                    document.getElementById('preview-title').innerText = data.name;
+                    document.getElementById('preview-artist').innerText = data.type === 'playlist' ? 'Playlist' : data.artist;
+                    
+                    document.getElementById('hiddenLink').value = link;
+                    document.getElementById('dlBtn').disabled = false;
+                    document.getElementById('statusMsg').innerText = "Ready.";
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function startDownload() {
+            // Inject Keys into Form just before submit
+            document.getElementById('hiddenCID').value = localStorage.getItem("xepo_cid");
+            document.getElementById('hiddenCS').value = localStorage.getItem("xepo_cs");
+            
+            const btn = document.getElementById('dlBtn');
+            btn.innerText = "Downloading...";
+            setTimeout(() => { btn.innerText = "Download Started"; }, 3000);
+        }
+    </script>
+</body>
+</html>
