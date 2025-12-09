@@ -8,219 +8,112 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
 
-        :root {
-            --primary: #1DB954;
-            --primary-hover: #1ed760;
-            --dark: #000000;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            background-color: var(--dark);
-            font-family: 'Outfit', sans-serif;
-            color: white;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Background */
-        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; animation: float 10s infinite ease-in-out; }
+        :root { --primary: #1DB954; --dark: #000000; --glass: rgba(255, 255, 255, 0.05); }
+        body { background-color: var(--dark); font-family: 'Outfit', sans-serif; color: white; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; overflow: hidden; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; animation: float 10s infinite; }
         .orb-1 { width: 400px; height: 400px; background: #1DB954; top: -100px; left: -100px; }
-        .orb-2 { width: 300px; height: 300px; background: #1e3a8a; bottom: -50px; right: -50px; animation-delay: -5s; }
+        .orb-2 { width: 300px; height: 300px; background: #1e3a8a; bottom: -50px; right: -50px; }
         @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, 50px); } }
 
-        /* Main Card */
-        .container {
-            width: 500px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            text-align: center;
-            position: relative;
-        }
-
-        /* Settings Button */
-        .settings-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: #888;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .settings-icon:hover { color: white; transform: rotate(90deg); }
-        
-        .warn-dot {
-            position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%; display: none;
-        }
-
+        .container { width: 480px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; position: relative; }
         h1 { margin: 0; font-size: 3rem; background: linear-gradient(to right, #fff, #bbb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .credits { margin-top: 30px; font-size: 0.8rem; color: #555; }
-        .credits span { color: var(--primary); font-weight: bold; }
+        
+        input[type="text"] { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; color: white; outline: none; box-sizing: border-box; margin-bottom: 15px; }
+        
+        /* Settings Row */
+        .options-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between; }
+        select { background: #222; color: white; border: 1px solid #444; padding: 10px; border-radius: 8px; outline: none; cursor: pointer;}
+        .checkbox-wrapper { display: flex; align-items: center; font-size: 0.9rem; color: #ccc; cursor: pointer; }
+        .checkbox-wrapper input { margin-right: 8px; width: auto; }
 
-        /* Inputs & Buttons */
-        .input-box { position: relative; margin: 20px 0; }
-        input[type="text"] {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            padding: 15px; border-radius: 12px; color: white; outline: none; box-sizing: border-box;
-        }
-        .dl-btn {
-            width: 100%; background: var(--primary); color: black; border: none; padding: 15px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s;
-        }
+        .dl-btn { width: 100%; background: var(--primary); color: black; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .dl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .dl-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(29,185,84,0.3); }
 
-        /* Preview */
-        #preview-area { display: none; margin: 20px 0; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; align-items: center; gap: 15px; text-align: left;}
+        #preview-area { display: none; margin: 20px 0; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; align-items: center; gap: 15px; text-align: left; }
         #preview-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
-
-        /* MODAL (Settings) */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 100; display: none; justify-content: center; align-items: center;
-        }
-        .modal {
-            background: #181818; width: 450px; padding: 30px; border-radius: 20px;
-            border: 1px solid var(--border); box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            text-align: left;
-        }
-        .modal h2 { margin-top: 0; color: var(--primary); }
-        .modal label { display: block; font-size: 0.9rem; color: #aaa; margin-top: 15px; margin-bottom: 5px; }
-        .modal input { width: 100%; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box;}
         
-        .tutorial {
-            background: #222; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 0.85rem; color: #ccc; line-height: 1.4;
-        }
-        .save-btn {
-            margin-top: 20px; background: white; color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; float: right;
-        }
-
+        .settings-icon { position: absolute; top: 20px; right: 20px; color: #888; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; justify-content: center; align-items: center; }
+        .modal { background: #181818; padding: 30px; border-radius: 20px; width: 400px; text-align: left; border: 1px solid #333; }
+        .save-btn { float: right; padding: 8px 20px; background: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 15px; font-weight: bold;}
     </style>
 </head>
 <body>
-
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
+    <div class="orb orb-1"></div><div class="orb orb-2"></div>
 
     <div class="container">
-        <!-- Settings Icon -->
-        <div class="settings-icon" onclick="openSettings()">
-            <i class="fas fa-cog"></i>
-            <div class="warn-dot" id="warnDot"></div>
+        <i class="fas fa-cog settings-icon" onclick="openSettings()"></i>
+        <h1>XEPO</h1>
+        <p style="color:#888; font-size:0.9rem; margin-bottom:20px;">by Elysand</p>
+
+        <input type="text" id="linkInput" placeholder="Spotify Link..." oninput="checkLink()">
+        
+        <div class="options-row">
+            <input type="text" id="customName" placeholder="Filename (optional)" style="margin-bottom:0; width: 50%;">
+            
+            <select id="qualitySelect">
+                <option value="128">Eco (128k)</option>
+                <option value="192" selected>Std (192k)</option>
+                <option value="320">High (320k)</option>
+            </select>
         </div>
 
-        <h1>XEPO</h1>
-        <p style="color: #888; font-size: 0.9rem; letter-spacing: 2px;">EDUCATIONAL TOOL</p>
-
-        <div class="input-box">
-            <input type="text" id="linkInput" placeholder="Paste Spotify URL..." oninput="checkLink()">
+        <div class="options-row" style="justify-content: flex-start;">
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="forceZip"> Always download as ZIP
+            </label>
         </div>
 
         <div id="preview-area">
             <img id="preview-img" src="">
-            <div>
-                <h4 id="preview-title" style="margin:0;">Title</h4>
-                <p id="preview-artist" style="margin:5px 0 0; color:#aaa; font-size:0.8rem;">Artist</p>
-            </div>
+            <div><h4 id="preview-title" style="margin:0;">Title</h4><p id="preview-artist" style="margin:5px 0 0; color:#aaa; font-size:0.8rem;">Artist</p></div>
         </div>
 
         <form id="dlForm" action="/download" method="post" onsubmit="startDownload()">
             <input type="hidden" name="link" id="hiddenLink">
-            <!-- Hidden Fields for API Keys (injected via JS) -->
             <input type="hidden" name="cid" id="hiddenCID">
             <input type="hidden" name="cs" id="hiddenCS">
+            <input type="hidden" name="quality" id="hiddenQuality">
+            <input type="hidden" name="custom_name" id="hiddenName">
+            <input type="hidden" name="force_zip" id="hiddenZip">
             
-            <button type="submit" class="dl-btn" id="dlBtn" disabled>
-                Download
-            </button>
+            <button type="submit" class="dl-btn" id="dlBtn" disabled>Download</button>
         </form>
-
-        <div id="statusMsg" style="margin-top:15px; color:#666; font-size:0.8rem;">Waiting for input...</div>
-
-        <div class="credits">
-            Made with ❤️ for Educational Purpose.<br>
-            Credits to <span>Elysand</span>
-        </div>
+        <div id="statusMsg" style="margin-top:15px; color:#666; font-size:0.8rem;">Waiting...</div>
     </div>
 
-    <!-- SETTINGS MODAL -->
+    <!-- Settings Modal -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
-            <h2>API Setup</h2>
-            <p style="color:#888; font-size:0.9rem;">Your keys are saved in your browser cookies/storage. We never see them.</p>
-            
-            <label>Client ID</label>
-            <input type="text" id="inputCID" placeholder="Enter Client ID">
-            
-            <label>Client Secret</label>
-            <input type="text" id="inputCS" placeholder="Enter Client Secret" type="password">
-
-            <div class="tutorial">
-                <strong>How to get keys:</strong>
-                <ol style="padding-left: 20px; margin: 5px 0;">
-                    <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank" style="color:var(--primary);">Spotify Developer</a>.</li>
-                    <li>Log in and click "Create App".</li>
-                    <li>Name it "...", Website: <code>https://youtoube.com</code>.</li>
-                    <li>Go to "Settings" inside the app to copy ID & Secret.</li>
-                </ol>
-            </div>
-
-            <button class="save-btn" onclick="saveKeys()">Save & Close</button>
+            <h2 style="color:var(--primary); margin-top:0;">API Keys</h2>
+            <p style="color:#aaa; font-size:0.8rem;">Required for Metadata.</p>
+            <input type="text" id="inputCID" placeholder="Client ID" style="margin-bottom:10px;">
+            <input type="password" id="inputCS" placeholder="Client Secret">
+            <button class="save-btn" onclick="saveKeys()">Save</button>
         </div>
     </div>
 
     <script>
-        // Check Keys on Load
         document.addEventListener("DOMContentLoaded", () => {
-            const cid = localStorage.getItem("xepo_cid");
-            const cs = localStorage.getItem("xepo_cs");
-            
-            if(!cid || !cs) {
-                document.getElementById('warnDot').style.display = 'block';
-                openSettings(); // Force open if no keys
-            } else {
-                document.getElementById('inputCID').value = cid;
-                document.getElementById('inputCS').value = cs;
+            if(!localStorage.getItem("xepo_cid")) openSettings();
+            else {
+                document.getElementById('inputCID').value = localStorage.getItem("xepo_cid");
+                document.getElementById('inputCS').value = localStorage.getItem("xepo_cs");
             }
         });
-
-        function openSettings() {
-            document.getElementById('settingsModal').style.display = 'flex';
-        }
-
+        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
         function saveKeys() {
-            const cid = document.getElementById('inputCID').value.trim();
-            const cs = document.getElementById('inputCS').value.trim();
-
-            if(cid && cs) {
-                localStorage.setItem("xepo_cid", cid);
-                localStorage.setItem("xepo_cs", cs);
-                document.getElementById('warnDot').style.display = 'none';
-                document.getElementById('settingsModal').style.display = 'none';
-                alert("Keys saved safely in your browser!");
-            } else {
-                alert("Please fill in both fields.");
-            }
+            localStorage.setItem("xepo_cid", document.getElementById('inputCID').value);
+            localStorage.setItem("xepo_cs", document.getElementById('inputCS').value);
+            document.getElementById('settingsModal').style.display = 'none';
         }
 
         let timeout = null;
         function checkLink() {
             const link = document.getElementById('linkInput').value;
-            if (link.includes('spotify.com')) {
-                document.getElementById('statusMsg').innerText = "Verifying Keys & Metadata...";
+            if(link.includes('spotify.com')) {
+                document.getElementById('statusMsg').innerText = "Fetching Info...";
                 clearTimeout(timeout);
                 timeout = setTimeout(() => fetchMetadata(link), 500);
             }
@@ -229,48 +122,48 @@
         async function fetchMetadata(link) {
             const cid = localStorage.getItem("xepo_cid");
             const cs = localStorage.getItem("xepo_cs");
-
-            if(!cid || !cs) {
-                openSettings();
-                return;
-            }
+            if(!cid) return openSettings();
 
             try {
-                const response = await fetch('/get_info', {
+                const res = await fetch('/get_info', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ link: link, cid: cid, cs: cs })
+                    body: JSON.stringify({link, cid, cs})
                 });
-
-                const data = await response.json();
-                if (data.error) {
-                    document.getElementById('statusMsg').innerText = "Error: " + data.error;
-                    if(data.error.includes("Keys")) openSettings();
+                const data = await res.json();
+                
+                if(data.error) {
+                    document.getElementById('statusMsg').innerText = data.error;
                 } else {
-                    // Show Preview
-                    const preview = document.getElementById('preview-area');
-                    preview.style.display = 'flex';
+                    document.getElementById('preview-area').style.display = 'flex';
                     document.getElementById('preview-img').src = data.image;
                     document.getElementById('preview-title').innerText = data.name;
                     document.getElementById('preview-artist').innerText = data.type === 'playlist' ? 'Playlist' : data.artist;
-                    
-                    document.getElementById('hiddenLink').value = link;
                     document.getElementById('dlBtn').disabled = false;
                     document.getElementById('statusMsg').innerText = "Ready.";
+                    
+                    // Auto-fill custom name with song title if empty
+                    if(!document.getElementById('customName').value) {
+                         // document.getElementById('customName').value = data.name; 
+                    }
                 }
-            } catch (e) {
-                console.log(e);
-            }
+            } catch(e) { console.log(e); }
         }
 
         function startDownload() {
-            // Inject Keys into Form just before submit
+            document.getElementById('hiddenLink').value = document.getElementById('linkInput').value;
             document.getElementById('hiddenCID').value = localStorage.getItem("xepo_cid");
             document.getElementById('hiddenCS').value = localStorage.getItem("xepo_cs");
             
+            // Neue Felder übergeben
+            document.getElementById('hiddenQuality').value = document.getElementById('qualitySelect').value;
+            document.getElementById('hiddenName').value = document.getElementById('customName').value;
+            document.getElementById('hiddenZip').value = document.getElementById('forceZip').checked;
+
             const btn = document.getElementById('dlBtn');
-            btn.innerText = "Downloading...";
-            setTimeout(() => { btn.innerText = "Download Started"; }, 3000);
+            btn.innerText = "Processing... (This takes time)";
+            btn.style.opacity = "0.7";
+            setTimeout(() => { btn.innerText = "Check Downloads Folder!"; }, 5000);
         }
     </script>
 </body>
